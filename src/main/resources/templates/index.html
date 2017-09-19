@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html  xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>欢迎界面</title>
+    </head>
+    <body>
+        Welcome to the index,hello <p th:text="${session.user.name}">body!</p>
+        <br/>
+        ----- read from properties  ----------
+        <p th:text="#{index.welcome}">read from properties</p>
+        <br/>
+        变量替换：<p th:text="${message}">变量替换</p>
+        <br/>
+        字符串部分替换-写法1：<span th:text="'Welcome to my index, ' + ${session.user.name} + '!'">字符串部分替换-写法1</span>
+        <br/>
+        字符串部分替换-写法2：<span th:text="|Welcome to our application, ${session.user.name}!|">字符串部分替换-写法2</span>
+        <br/>
+        -----url用法------
+        <table>
+            <tr>
+                <td>相对路径-->通常不推荐这样写</td>
+                <td><a href="#" th:href="@{login.html}" target="_blank">登录页面</a></td>
+            </tr>
+            <tr>
+                <td>绝对路径</td>
+                <td><a href="#" th:href="@{/login/login.html}" target="_blank">登录页面</a></td>
+            </tr>
+            <tr>
+                <td>绝对路径</td>
+                <td><a href="#" th:href="@{/login/index}" target="_blank">欢迎页面</a></td>
+            </tr>
+            <tr>
+                <td>url带有一个参数</td>
+                <!--/login/index?username=111;username2=111 注意这里的参数必须以分号结尾 -->
+                <td><a href="#" th:href="@{/login/index(username=${session.user.name})}" target="_blank">欢迎页面</a></td>
+            </tr>
+            <tr>
+                <td>url带有多个参数</td>
+                <!--/login/index?username=111;username2=111 注意这里的参数必须以分号结尾 -->
+                <td><a href="#" th:href="@{/login/index(username=${session.user.name},username2=${session.user.name})}" target="_blank">欢迎页面</a></td>
+            </tr>
+            <tr>
+                <td>url路径中带有参数-->restful风格</td>
+                <!--/login/index?username=111;username2=111 注意这里的参数必须以分号结尾 -->
+                <td><a href="#" th:href="@{'/login/index/{username}/'+${session.user.name}(username=${session.user.name})}" target="_blank">欢迎页面</a></td>
+            </tr>
+            <tr>
+                <td>url路径中和?后边带有参数-->restful风格与?&amp;传参混合</td>
+                <!--/login/index?username=111;username2=111 注意这里的参数必须以分号结尾 -->
+                <td><a href="#" th:href="@{/login/index/{username}(username=${session.user.name},username2=${session.user.name},username3=${session.user.name})}" target="_blank">欢迎页面</a></td>
+            </tr>
+        </table>
+        <br/>
+        -----字符串用法------
+        <table>
+            <tr>
+                <td>部分字符串替换-写法1</td>
+                <td><a href="#" th:href="@{/login/index}" target="_blank">欢迎页面</a></td>
+            </tr>
+            <tr>
+                <td>部分字符串替换-写法2</td>
+                <td><a href="#" th:href="@{/login/index}" target="_blank">欢迎页面</a></td>
+            </tr>
+        </table>
+        <br/>
+        -----运算符用法------
+        <table>
+            <tr>
+                <td>运算符用法1</td>
+                <td th:with="isEven=(${session.user.name} + '-2')">this is abc<span th:text="${isEven}">444</span></td>
+            </tr>
+            <tr>
+                <td>运算符用法1</td>
+                <td th:with="isEven=(${session.user.name} + '-2'=='5-2')">this is bcd</td>
+            </tr>
+            <tr>
+                <td>运算符用法2</td>
+                <td th:if="${session.user.name=='5'}">this is true</td>
+            </tr>
+            <tr>
+                <td>运算符用法3</td>
+                <td th:if="${session.user.name}=='6'">this is false</td>
+            </tr>
+        </table>
+        <br/>
+        -----循环用法1  非空集合------
+        <table>
+            <tr>
+                <th>INDEX</th>
+                <th>NAME</th>
+                <th>USERNAME</th>
+                <th>PASSWORD</th>
+            </tr>
+            <tr th:each="user,iterStat : ${users}">
+                <td th:text="${iterStat.index}">index</td>
+                <td th:text="${user.name}">Onions</td>
+                <td th:text="${user.username}">111</td>
+                <td th:text="${user.password}">***</td>
+                <!--<td th:text="${user.password}? #{true} : #{false}">yes</td>-->
+            </tr>
+        </table>
+        <br/>
+        -----循环用法2  空集合，判断为空则整体表格不显示------
+        <table th:if="${usera!=null}">
+            <tr>
+                <th>NAME</th>
+                <th>USERNAME</th>
+                <th>PASSWORD</th>
+            </tr>
+            <tr th:each="user : ${usera}">
+                <td th:text="${user.name}">Onions</td>
+                <td th:text="${user.username}">111</td>
+                <td th:text="${user.password}">***</td>
+                <!--<td th:text="${user.password}? #{true} : #{false}">yes</td>-->
+            </tr>
+        </table>
+        <br/>
+        -----switch 用法，相当于jstl的choose when    默认属性default可以用*表示：------
+        <div th:switch="${session.user.username}">
+            <p th:case="'6'">User is an administrator</p>
+            <p th:case="${session.user.name}">User`s username equals the name</p>
+            <p th:case="*">User is some other thing</p>
+        </div>
+        <br/>
+        -----Utility对象（内置于Context中）：------
+        -----#dates：------
+        <div>
+            <p th:text="${#dates.format(date, 'yyyy-MM-d HH:mm:ss')}"></p>
+            <p th:text="${#dates.arrayFormat(datesArray, 'yyyy-MM-d HH:mm:ss')}"></p>
+            <p th:text="${#dates.listFormat(datesList, 'yyyy-MM-d HH:mm:ss')}"></p>
+            <p th:text="${#dates.createNow()}"></p>
+            <p th:text="${#dates.createToday()}"></p>
+        </div>
+        <br/>
+        -----#strings：------
+        <div>
+            <p th:text="${#strings.isEmpty(session.user.name)}"></p>
+            <p th:text="${!#strings.arrayIsEmpty(nameArr)}"></p>
+            <p th:text="${#strings.listIsEmpty(nameList)}"></p>
+            <p th:text="${#strings.startsWith(session.user.name,'5')}"></p>
+            <p th:text="${#strings.randomAlphanumeric(10)}"></p>
+        </div>
+        <br/>
+        -----ajax 动态获取数据：------
+        <table>
+            <tr>
+                <th>INDEX</th>
+                <th>NAME</th>
+                <th>USERNAME</th>
+                <th>PASSWORD</th>
+            </tr>
+            <tr th:each="user,iterStat : ${userajax}">
+                <td th:text="${iterStat.index}">index</td>
+                <td th:text="${user.name}">Onions</td>
+                <td th:text="${user.username}">111</td>
+                <td th:text="${user.password}">***</td>
+                <!--<td th:text="${user.password}? #{true} : #{false}">yes</td>-->
+            </tr>
+        </table>
+        <br/>
+        -----页面布局引用：------
+        <div th:include="footer :: copy"></div>
+        <script th:src="@{/webjars/jquery/3.2.1/jquery.min.js}"></script>
+        <script th:inline="javascript" th:src="@{/js/index.js}"></script>
+    </body>
+</html>
